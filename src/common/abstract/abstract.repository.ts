@@ -1,26 +1,24 @@
 import { ArgumentsHost, Injectable, NotFoundException } from "@nestjs/common";
 import { Request } from "express";
-import { join } from "path";
 import { IErrorLocation } from "src/utility/history/interface/error.interface";
-import CustomLogger from "src/utility/logger/module/custom.logger";
 import LogsService from "src/utility/logger/module/logger.service";
 import { DataSource, FindOneOptions, QueryRunner } from "typeorm";
 import { PaginationDataDTO } from "../dtos/pagination.dto";
-const location: IErrorLocation = {
-    filename: __filename,
-    method_name: "", 
-    class_name: ""
-}
 @Injectable()
 export abstract class AbstractRepositoryClass<Entity, CreateDTO, UpdateDTO, PaginationDTO> {
     
     private req: Request;
+    private location: IErrorLocation = {
+        filename: __filename,
+        method_name: "", 
+        class_name: ""
+    }
     protected constructor(
         public dataSource: DataSource, 
         private loggerService: LogsService,
         private host: ArgumentsHost
     ) {
-        location.class_name = AbstractRepositoryClass
+        this.location.class_name = AbstractRepositoryClass.name
         this.req = this.host.switchToHttp().getRequest<Request>()
      }
     abstract _findOneEntity(searchValueDto: string, options?: FindOneOptions): Promise<Entity>;
@@ -35,8 +33,8 @@ export abstract class AbstractRepositoryClass<Entity, CreateDTO, UpdateDTO, Pagi
             if (!entity) throw new NotFoundException();
             return entity;
         } catch (error) {
-            location.method_name = this.findOneEntity.name; 
-            this.loggerService.saveErrorLog(this.req, error, location)
+            this.location.method_name = this.findOneEntity.name; 
+            this.loggerService.saveErrorLog(this.req, error, this.location)
         }
     }
     async createEntity(createDto: CreateDTO, query?: QueryRunner): Promise<Entity> {
@@ -44,8 +42,8 @@ export abstract class AbstractRepositoryClass<Entity, CreateDTO, UpdateDTO, Pagi
             const entity = await this._createEnity(createDto, query);
             return entity
         } catch (error) {
-            location.method_name = this.createEntity.name; 
-            this.loggerService.saveErrorLog(this.req, error, location)
+            this.location.method_name = this.createEntity.name; 
+            this.loggerService.saveErrorLog(this.req, error, this.location)
         }
     }
 
@@ -54,8 +52,8 @@ export abstract class AbstractRepositoryClass<Entity, CreateDTO, UpdateDTO, Pagi
             const paginatedData = await this._paginationEntity(paginationDto);
             return paginatedData;
         } catch (error) {
-            location.method_name = this.paginationEntity.name; 
-            this.loggerService.saveErrorLog(this.req, error, location)
+            this.location.method_name = this.paginationEntity.name; 
+            this.loggerService.saveErrorLog(this.req, error, this.location)
         }
     }
     async updateEntity(entity: Entity, updateDto: UpdateDTO, query?: QueryRunner): Promise<Entity> {
@@ -63,8 +61,8 @@ export abstract class AbstractRepositoryClass<Entity, CreateDTO, UpdateDTO, Pagi
             const updatedResult = await this._updateEntity(entity, updateDto, query);
             return updatedResult;
         } catch (error) {
-            location.method_name = this.updateEntity.name;
-            this.loggerService.saveErrorLog(this.req, error, location)
+            this.location.method_name = this.updateEntity.name;
+            this.loggerService.saveErrorLog(this.req, error, this.location)
         }
     }
     async deleteEntity(entity: Entity, query?: QueryRunner) {
@@ -72,8 +70,8 @@ export abstract class AbstractRepositoryClass<Entity, CreateDTO, UpdateDTO, Pagi
             if (query) return await query.manager.remove(entity);
             return await this.dataSource.manager.remove(entity);
         } catch (error) {
-            location.method_name = this.deleteEntity.name;
-            this.loggerService.saveErrorLog(this.req, error, location)
+            this.location.method_name = this.deleteEntity.name;
+            this.loggerService.saveErrorLog(this.req, error, this.location)
         }
     }
 }

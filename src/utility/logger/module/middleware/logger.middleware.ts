@@ -1,18 +1,11 @@
 
-import { HttpException, HttpStatus, Injectable, InternalServerErrorException, Logger, NestMiddleware } from '@nestjs/common';
-import { ErrorHttpStatusCode, HttpErrorByCode } from '@nestjs/common/utils/http-error-by-code.util';
+import {Injectable, NestMiddleware } from '@nestjs/common';
+import { ErrorHttpStatusCode } from '@nestjs/common/utils/http-error-by-code.util';
 import { MESSAGES } from '@nestjs/core/constants';
-import { InjectModel } from '@nestjs/mongoose';
-import { DESTRUCTION } from 'dns';
 import { Request, Response, NextFunction } from 'express';
-import { STATUS_CODES } from 'http';
-import { Model } from 'mongoose';
-import { join } from 'path';
 import { ErrorMessageByStatus } from 'src/common/constant/error-messages.constant';
-import { HttpExceptionsFilter } from 'src/common/exceptions/http.exception';
 import { getLogLevelByStatus } from 'src/common/utility/functions';
 import { IErrorDetail, IErrorLocation } from 'src/utility/history/interface/error.interface';
-import { HistoryDocument } from 'src/utility/history/schema/history.schema';
 import CustomLogger from '../custom.logger';
 import LogsService from '../logger.service';
 

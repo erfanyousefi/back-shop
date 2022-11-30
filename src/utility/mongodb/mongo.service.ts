@@ -1,12 +1,13 @@
 import { ObjectId } from "mongodb";
 import { FilterQuery } from "mongoose";
 import { ConnectToMongo } from "./mongo-singletone";
-const connectToMongo = new ConnectToMongo();
 
+const connectToMongo = new ConnectToMongo();
 export async function MongoInsertOne<CreateDTO>(collection: string, data: CreateDTO) {
+    const connectToMongo = new ConnectToMongo();
     try {
         let db = await connectToMongo.Get();
-        const result = await db.collection(collection).insertOne(data);
+        const result = await db.collection("collection").insertOne(data);
         return result;
     } catch (error) {
         console.log(error);

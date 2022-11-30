@@ -1,10 +1,11 @@
 
-import { Module } from '@nestjs/common';
+import { Global, Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { History, HistorySchema } from '../history/schema/history.schema';
 import CustomLogger from './module/custom.logger';
 import LogsService from './module/logger.service';
 
+@Global()
 @Module({
     imports: [
         MongooseModule.forFeature([
@@ -12,6 +13,6 @@ import LogsService from './module/logger.service';
         ])
     ],
     providers: [LogsService],
-    exports: [LogsService, ],
+    exports: [LogsService ],
 })
 export class LoggerModule { }

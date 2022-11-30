@@ -1,15 +1,28 @@
-import { Injectable, Logger } from "@nestjs/common";
-import CustomLogger from "src/utility/logger/module/custom.logger";
-import { BaseEntity, FindOneOptions, QueryRunner } from "typeorm";
+import { ArgumentsHost, Injectable, Logger } from "@nestjs/common";
+import { Request } from "express";
+import { IErrorLocation } from "src/utility/history/interface/error.interface";
+import LogsService from "src/utility/logger/module/logger.service";
+import { BaseEntity, DataSource, FindOneOptions, QueryRunner } from "typeorm";
 import { ParamResultEnum } from "../enums/param.result.enum";
 import { IsEntity } from "../utility/functions";
 
 @Injectable()
 export abstract class AbstractServiceClass<Entity, CreateDTO, UpdateDTO, PaginationDTO> {
     public logger = new Logger(AbstractServiceClass.name)
+    private req: Request;
+    private location: IErrorLocation = {
+        filename: __filename,
+        method_name: "",
+        class_name: ""
+    }
     protected constructor(
-        private customLog: CustomLogger,
-    ) { }
+        public dataSource: DataSource,
+        private loggerService: LogsService,
+        private host: ArgumentsHost
+    ) {
+        this.location.class_name = AbstractServiceClass.name
+        this.req = this.host.switchToHttp().getRequest<Request>()
+    }
     protected abstract _getOne(searchValueDto: string, options?: FindOneOptions);
     abstract _resultGetOneDto(entity: Entity);
     async getOne<Entity extends BaseEntity>(searchValueDto: string, paramResult: ParamResultEnum, options?: FindOneOptions) {
@@ -18,7 +31,8 @@ export abstract class AbstractServiceClass<Entity, CreateDTO, UpdateDTO, Paginat
             if (IsEntity(paramResult)) return getOneResult
             return await this._resultGetOneDto(getOneResult);
         } catch (error) {
-            this.customLog.error(error.message, error.stack, error.context)
+            this.location.method_name = this.getOne.name
+            this.loggerService.saveErrorLog(this.req, error, this.location)
         }
     }
 
@@ -30,7 +44,8 @@ export abstract class AbstractServiceClass<Entity, CreateDTO, UpdateDTO, Paginat
             if (IsEntity(paramResult)) return createEntity
             return await this._resultCreateDto(createEntity)
         } catch (error) {
-            this.customLog.error(error.message, error.stack, error.context)
+            this.location.method_name = this.create.name
+            this.loggerService.saveErrorLog(this.req, error, this.location)
         }
     }
 
@@ -42,7 +57,8 @@ export abstract class AbstractServiceClass<Entity, CreateDTO, UpdateDTO, Paginat
             if (IsEntity(paramResult)) return deleteEntity
             return await this._resultDeleteDto(deleteEntity)
         } catch (error) {
-            this.customLog.error(error.message, error.stack, error.context)
+            this.location.method_name = this.delete.name
+            this.loggerService.saveErrorLog(this.req, error, this.location)
         }
     }
 
@@ -54,7 +70,8 @@ export abstract class AbstractServiceClass<Entity, CreateDTO, UpdateDTO, Paginat
             if (IsEntity(paramResult)) return updateEntity
             return await this._resultUpdateDto(updateEntity)
         } catch (error) {
-            this.customLog.error(error.message, error.stack, error.context)
+            this.location.method_name = this.update.name
+            this.loggerService.saveErrorLog(this.req, error, this.location)
         }
     }
 
@@ -63,7 +80,8 @@ export abstract class AbstractServiceClass<Entity, CreateDTO, UpdateDTO, Paginat
         try {
             return await this._pagination(pageDto);
         } catch (error) {
-            this.customLog.error(error.message, error.stack, error.context)
+            this.location.method_name = this.pagination.name
+            this.loggerService.saveErrorLog(this.req, error, this.location)
         }
     }
 }

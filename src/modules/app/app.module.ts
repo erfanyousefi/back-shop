@@ -10,14 +10,19 @@ import { HistoryModule } from 'src/utility/history/history.module';
 import { MongooseModule } from '@nestjs/mongoose';
 import LogsMiddleware from "src/utility/logger/module/middleware/logger.middleware";
 import { LoggerModule } from "src/utility/logger/logger.module";
+import { RoleCoreModule } from "../role/role-core/role-core.module";
 import CustomLogger from "src/utility/logger/module/custom.logger";
+import { RoleService } from "../role/module/services/role.service";
+import LogsService from "src/utility/logger/module/logger.service";
+import { RoleModule } from "../role/module/role.module";
 @Module({
   imports: [
     TypeOrmModule.forRoot(getTypeOrmOptions()),
     MongooseModule.forRoot(getMongoURL()),
-    LoggerModule,
     RedisModule,
-    HistoryModule
+    HistoryModule,
+    LoggerModule,
+    RoleCoreModule,
   ],
   controllers: [AppController],
   providers: [RedisService, CustomLogger],

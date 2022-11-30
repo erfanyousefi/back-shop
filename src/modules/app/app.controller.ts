@@ -13,7 +13,6 @@ import { testDto } from "./test.dto";
 export class AppController {
     constructor(
         private redisService: RedisService,
-        private historyService: HistoryService,
         private customLog: CustomLogger,
     ) { }
     @Post("/")
@@ -22,7 +21,6 @@ export class AppController {
     async index(@Req() req: Request, @Body() body: testDto) {
         try {
             await this.redisService.setKeyNoExpire("user", "erfan usefi 26 nestjs")
-            throw new BadRequestException()
             return await this.redisService.getKey("user")
         } catch (error) {
             const errorLocation: IErrorLocation = {

@@ -10,14 +10,14 @@ import { IErrorLocation } from 'src/utility/history/interface/error.interface';
 @Injectable()
 export default class LogsService {
   constructor(
-    @InjectModel(History.name) private mongoLogRepository: Model<HistoryDocument>
+    @InjectModel(History.name) private historyRepository: Model<HistoryDocument>
   ) { }
 
   async saveErrorLog(req: Request, error: Error & any, errorLocation: IErrorLocation) {
     const { body, params, query, path, url, ip, headers, cookies, statusCode, statusMessage } = req;
     const requestDetail =
       { body, params, query, path, url, ip, headers, cookies, statusCode, statusMessage }
-    return await this.mongoLogRepository.create({
+    return await this.historyRepository.create({
       requestDetail,
       errorDetail: { ...error },
       errorLocation

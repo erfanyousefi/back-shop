@@ -1,17 +1,18 @@
 import { InternalServerErrorException, Logger } from "@nestjs/common";
 import { getMongoURL } from "src/config/database/mongoose.config";
-import { MongoClient, Db } from "typeorm";
+import { MongoClient, Db } from "mongodb";
 
 export class ConnectToMongo {
     private db?: Db  = null;
     private instance :number = 0;
     private logger: Logger = new Logger("MongoDB")
-    private async connect(){
+    protected async connect(){
         try {
-            let _db = await MongoClient.connect(getMongoURL());
-            return _db;
+            let client = await new MongoClient("mongodb://localhost:27017/digikala-log").connect();
+            let db = client.db();
+            return db;
         } catch (error) {
-            this.logger.debug(JSON.stringify(error, null, 4))
+            this.logger.debug(error.message)
             
         }
     }
@@ -28,7 +29,7 @@ export class ConnectToMongo {
             return this.db;
 
         } catch (error) {
-            this.logger.debug(JSON.stringify(error, null, 4))
+            this.logger.debug(error.message)
         }
     }
 }

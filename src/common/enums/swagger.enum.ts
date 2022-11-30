@@ -11,3 +11,8 @@ export enum SwaggerBearer {
     BEARER_FORMAT="JWT",
     HEADER="header"
 }
+export enum SwaggerConsumes {
+    JSON="application/json",
+    FORM_URL_ENCODED="application/x-www-form-urlencoded",
+    MULTIPART="multipart/form-data"
+}
